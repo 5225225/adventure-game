@@ -1,0 +1,68 @@
+[
+    {
+        "pos": [0,0],
+        "items": [
+            "rusty axe"
+        ],
+        
+        "things":[
+            {
+                "name":"useless box",
+                "actions":{
+                    "rusty axe":"GIVE shiny coin"
+                }
+            }
+        ],
+        "name":"Spawn"
+    },
+
+    {
+        "pos": [0,1],
+        "items": [
+            "shiny coin",
+            "gold-plated hdmi cable"
+        ],
+        "things": [
+            {
+                "name":"candy machine",
+                "actions":{
+                    "shiny coin":"GIVE candy bar;TAKE shiny coin"
+                }
+            },
+
+            {
+                "name":"computer",
+                "actions":{
+                    "shiny coin":"MATCH Enter password: ,1234",
+                    "_shiny coin_yes":"SAY Correct!;GIVE red key",
+                    "_shiny coin_no":"SAY Incorrect!"
+                }
+            },
+            
+            {
+                "name":"teleporter",
+                "actions":{
+                    "shiny coin":"TELEPORT 0,3;TAKE shiny coin"
+                }
+            }
+        ],
+        "name":"The break room"
+    },
+    
+    {
+        "pos": [0,3],
+        "items": [
+            "phone"
+        ],
+        
+        "things":[
+            {
+                "name":"teleporter",
+                "actions":{
+                    "candy bar":"GIVE shiny coin;TELEPORT 0,0"
+                }
+            }
+        ],
+        "name":"???"
+    }
+]
