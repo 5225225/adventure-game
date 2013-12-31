@@ -126,9 +126,11 @@ while True:
                 if item["name"] == " ".join(instr[search(instr,"on") + 1:]):
                     thing = item
                     break
-            pass
-            action = thing["actions"][ITEM]
-            do_action(action,thing,ITEM)
+            if thing == "":
+                print(getmsg("NO-THING"))
+            else:
+                action = thing["actions"][ITEM]
+                do_action(action,thing,ITEM)
     elif instr[0] in ("help"):
         print(getmsg("HELPTEXT"))
     else:

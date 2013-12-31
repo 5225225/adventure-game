@@ -4,6 +4,8 @@ messages = {
 "NO-DOOR":"There doesn't seem to be a room in that direction...",
 "NEW-ROOM":"You open the door, and walk into a room.",
 "NO-ITEM":"404 item not found.",
+"NO-THING":"418 I'm a teapot, and I don't know what thing you're talking about.",
+#Works a lot better if you've seen the NO-ITEM first
 "LOOK-NAME":"This room's name is {}.",
 "LOOK-ITEMS":"You look around, and find the following items:",
 "LOOK-THINGS":"You also see the following things in the room",
