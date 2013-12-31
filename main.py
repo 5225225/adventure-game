@@ -1,3 +1,4 @@
+import sys
 import json
 
 from messages import getmsg
@@ -25,15 +26,18 @@ def do_action(action,thing,ITEM):
     for item in action.split(";"):
         act = item.split(" ")
         if act[0] == "TAKE":
-            print(getmsg("TAKE-ACT").format(thing["name"]," ".join(act[1:])))
-            inventory.remove(" ".join(act[1:]))
+            try:
+                inventory.remove(" ".join(act[1:]))
+                print(getmsg("TAKE-ACT").format(thing["name"]," ".join(act[1:])))
+            except ValueError:
+                print(getmsg("TAKE-ACT-FAILED").format(thing["name"]," ".join(act[1:])))
         elif act[0] == "GIVE":
-            print(getmsg("GIVE-ACT").format(thing["name"]," ".join(act[1:])))
             inventory.append(" ".join(act[1:]))
+            print(getmsg("GIVE-ACT").format(thing["name"]," ".join(act[1:])))
         elif act[0] == "TELEPORT":
             global playerpos
-            print(getmsg("TELE-ACT").format(thing["name"]))
             playerpos = tuple(map(int,act[1].split(",")))
+            print(getmsg("TELE-ACT").format(thing["name"]))
         elif act[0] == "MATCH":
             prompt = " ".join(act[1:]).split(",")[0]
             value = " ".join(act[1:]).split(",")[1]
@@ -42,9 +46,25 @@ def do_action(action,thing,ITEM):
                 do_action(thing["actions"]["_{}_yes".format(ITEM)],thing,ITEM)
             else:
                 do_action(thing["actions"]["_{}_no".format(ITEM)],thing,ITEM)
+        elif act[0] == "COMP": 
+            prompt = " ".join(act[1:]).split(",")[0]
+            value = " ".join(act[1:]).split(",")[1]
+            instr = input(prompt)
+            try:
+                if int(instr) > int(value):
+                    do_action(thing["actions"]["_{}_high".format(ITEM)],thing,ITEM)
+                elif int(instr) < int(value):
+                    do_action(thing["actions"]["_{}_low".format(ITEM)],thing,ITEM)
+                elif int(instr) == int(value):
+                    do_action(thing["actions"]["_{}_equal".format(ITEM)],thing,ITEM)
+                else:
+                    #This REALLY should never happen
+                    assert False
+            except ValueError:
+                print(getmsg("NAN"))
         elif act[0] == "SAY":
             print(" ".join(act[1:])) 
-
+        
 def findroom(pos):
     for item in rooms:
         if item.pos == list(pos):
@@ -64,11 +84,20 @@ def moveplayer(ppos,pos): #Movement is reletive to current position
     else:
         return False
 
+playerpos = (0,0)
+
 with open("rooms.dat") as roomfile:
     for r in json.loads(roomfile.read()):
         rooms.append(room(r["pos"],r["items"],r["things"],r["name"]))
 
-playerpos = (0,0)
+try:
+    with open("save.json") as savefile:
+        savedata = json.load(savefile)
+        playerpos = savedata["pos"]
+        inventory = savedata["items"]
+except FileNotFoundError:
+    pass
+    #No save file, don't bother creating one yet
 
 while True:
     instr = input(": ").split(" ")
@@ -76,17 +105,21 @@ while True:
     if instr == [""]: pass
     #Moving player
     elif instr[0] in ("move","go"):
-        direction = [0,0]
 
-        if instr[1] in ("north","up"): direction = [0,1] 
-        if instr[1] in ("east","right"): direction = [1,0]
-        if instr[1] in ("south","down"): direction = [0,-1]
-        if instr[1] in ("west","left"): direction = [-1,0]
-        
-        if moveplayer(playerpos,direction):
-            print(getmsg("NEW-ROOM"))
-        else:
-            print(getmsg("NO-DOOR"))
+        try:
+            if instr[1] in ("north","up"): direction = [0,1] 
+            if instr[1] in ("east","right"): direction = [1,0]
+            if instr[1] in ("south","down"): direction = [0,-1]
+            if instr[1] in ("west","left"): direction = [-1,0]
+
+            if moveplayer(playerpos,direction):
+                print(getmsg("NEW-ROOM"))
+            else:
+                print(getmsg("NO-DOOR"))
+        except IndexError:
+            print(getmsg("NO-DIR"))
+        except NameError:
+            print(getmsg("INVALID-DIR"))
     #Getting items
     elif instr[0] in ("take"):
         if len(instr) == 1:
@@ -129,9 +162,17 @@ while True:
             if thing == "":
                 print(getmsg("NO-THING"))
             else:
-                action = thing["actions"][ITEM]
-                do_action(action,thing,ITEM)
+                try:
+                    action = thing["actions"][ITEM]
+                    do_action(action,thing,ITEM)
+                except KeyError:
+                    pass #This thing can't handle this item
     elif instr[0] in ("help"):
         print(getmsg("HELPTEXT"))
+    elif instr[0] in ("quit"):
+        with open("save.json","w") as savefile:
+            savedat = {"pos":playerpos,"items":inventory}
+            json.dump(savedat,savefile)
+        sys.exit(0)
     else:
         print(getmsg("INVALID-COMMAND").format(" ".join(instr)))

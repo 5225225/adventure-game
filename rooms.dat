@@ -64,5 +64,29 @@
             }
         ],
         "name":"???"
+    },
+
+    {
+        "pos": [0,-1],
+        "items": [
+            "token",
+            "token",
+            "token",
+            "token",
+            "token"
+        ],
+        "things": [
+            {
+                "name":"Higher-lower game",
+                "actions":{
+                    "token":"TAKE token;COMP Enter guess: ,7",
+                    "_token_high":"SAY Too high",
+                    "_token_low":"SAY Too low",
+                    "_token_equal":"SAY Correct! Here's a gold key!;GIVE gold key"
+                }
+            }
+        ],
+        "name":"Arcade"
     }
+
 ]
